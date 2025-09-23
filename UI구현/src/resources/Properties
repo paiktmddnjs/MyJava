@@ -1,0 +1,4 @@
+# db.properties
+db.url=jdbc:oracle:thin:@localhost:1521:xe
+db.user=C##PROJECT1
+db.password=PROJECT1
