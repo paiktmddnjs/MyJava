@@ -1,21 +1,20 @@
 package VO;
+//Order.java
 
 import java.util.Date;
+import java.util.List;
 
 public class Order {
-	private int OrderId;
 	private String phone; // 주문자 전화번호 (PK)
 	private Date orderDate;
 	private String ShowOrder;
 	private double totalPrice;
 	private String status;
 
-	public Order() {
-
-	}
+	Cart cart = new Cart();
 
 	public Order(String phone, Date orderDate, String showOrder, double totalPrice, String status) {
-
+		super();
 		this.phone = phone;
 		this.orderDate = orderDate;
 		this.ShowOrder = showOrder;
@@ -23,14 +22,7 @@ public class Order {
 		this.status = status;
 	}
 
-	public int getOrderId() {
-		return OrderId;
-	}
-
-	public void setOrderId(int orderId) {
-		this.OrderId = orderId;
-	}
-
+// getter / setter
 	public String getPhone() {
 		return phone;
 	}
@@ -68,6 +60,6 @@ public class Order {
 	}
 
 	public void setShowOrder(String showOrder) {
-		this.ShowOrder = showOrder;
+		this.ShowOrder = ShowOrder;
 	}
 }

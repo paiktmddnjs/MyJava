@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
@@ -15,19 +16,21 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
 
+import ButtonDialog.QuantityDialog;
 import Controller.Controller;
-import JPanel.MenuTabbedUI;
 import Service.MemberService;
 import Service.MenuService;
+
 import VO.CartItem;
+import VO.Member;
 import VO.Menu;
 
 public class ViewMenu {
 
-	public Controller c = new Controller();
+	public Controller c = new Controller();// 메뉴 관련 서비스
 	public Scanner sc = new Scanner(System.in);
+	Member currentMember; // 현재 로그인한 회원
 
 	MemberService ms = new MemberService();
 	public static boolean isGui = false;
@@ -74,9 +77,9 @@ public class ViewMenu {
 
 		if (phone.matches("\\d{11,11}")) { // match()를 활용해 숫자만 입력가능하고 11자리만 입력가능하게 설정
 			try {
-				c.memberLogin(phone); // Controller에 있는 로그인 메서드 호출
-				System.out.println("환영합니다! 현재 도장 개수: " + c.getCurrentMember().getStampCount() + ", 쿠폰 보유: "
-						+ (c.getCurrentMember().hasCoupon() ? "있음" : "없음"));
+				currentMember = c.memberLogin(phone); // Controller에 있는 로그인 메서드 호출
+				System.out.println("환영합니다! 현재 도장 개수: " + currentMember.getStampCount() + ", 쿠폰 보유: "
+						+ (currentMember.hasCoupon() ? "있음" : "없음"));
 			} catch (Exception e) {
 				System.err.println("회원 로그인/등록 중 오류 발생: " + e.getMessage());
 			}
@@ -88,38 +91,45 @@ public class ViewMenu {
 	}
 
 	public void showMenus() {
-		if (c.getCurrentMember() == null) {
+		if (currentMember == null) {
 			System.out.println("회원 로그인이 필요합니다. 메뉴를 보기 전에 1번을 선택해주세요.");
 			return;
 		}
 		isGui = true;
-		List<Menu> menus = null;
-		try {
-			menus = mn.getAllMenus();
-		} catch (SQLException e) {
-			System.err.println("주문 목록 불러오기 실패!");
-			e.printStackTrace();
-		}
+		List<Menu> menus = mn.getAllMenus();
 
 		JFrame frame = new JFrame("=== 메뉴 목록 ===");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setSize(900, 600);
 
-		JPanel menuPanel = new JPanel(new BorderLayout());
-
-		JTabbedPane menuTabs = new JTabbedPane();
-		menuTabs.setSize(900, 600);
 		// 레이아웃 설정
 		frame.setLayout(new BorderLayout()); // BorderLatour 5개의 영역에 컴포넌트를 배치할수 있다.
 
-		MenuTabbedUI menuUI = new MenuTabbedUI();
+		JPanel menuPanel = new JPanel();
+		menuPanel.setLayout(new GridLayout(6, 3, 10, 10));
 
-		menuTabs.addTab("# 커피 #", menuUI.createMenuPanel(menus, "커피", menuPanel, c));
-		menuTabs.addTab("# 티 #", menuUI.createMenuPanel(menus, "tea", menuPanel, c));
-		menuTabs.addTab("# 논커피 #", menuUI.createMenuPanel(menus, "non-Coffee", menuPanel, c));
+		for (Menu m : menus) {
+			JButton btnmenu = new JButton(m.toString());
+			btnmenu.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					QuantityDialog qDialog = new QuantityDialog(menuPanel, m.getName());
+					qDialog.setVisible(true);
 
-		frame.add(menuPanel, BorderLayout.CENTER);
-		
+					int quantity = qDialog.getQuantity();
+					if (quantity > 0) {
+						c.cart.addItem(m, quantity);
+						JOptionPane.showMessageDialog(menuPanel, m.getName() + " x " + quantity + " 담았습니다!");
+					} else {
+						// 취소하거나 유효하지 않은 경우
+						JOptionPane.showMessageDialog(menuPanel, "수량 선택이 취소되었습니다.");
+					}
+				}
+			});
+
+			menuPanel.add(btnmenu);
+			frame.add(menuPanel, BorderLayout.CENTER);
+		}
+
 		// FlowLayout : 왼쪽에서 오른쪽으로 흐르듯이 컴포넌트를 배치한다.
 		JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 20, 10));
 		JButton btnback = new JButton("뒤로가기");
@@ -143,18 +153,13 @@ public class ViewMenu {
 		btnPay.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 
-				// 창 닫기
+				frame.dispose(); // 창 닫기
 				checkout();
-				frame.dispose();
-				isGui = false;
-
+				showMenus();
 			}
 		});
 
-		menuPanel.add(menuTabs, BorderLayout.CENTER);
-		frame.add(menuPanel, BorderLayout.CENTER);
 		bottomPanel.add(btnPay);
-
 		frame.add(bottomPanel, BorderLayout.SOUTH);
 		frame.setVisible(true);
 
@@ -166,8 +171,16 @@ public class ViewMenu {
 			System.out.println("\n========== ++ 장바구니 ++ ==========");
 			System.out.printf("%-5s %-15s %-8s %-8s\n", "No", "메뉴명", "수량", "금액");
 
-			c.cart.showCart();
-			int total = c.cart.getTotalPrice();
+			int total = 0;
+			for (int i = 0; i < c.cart.getItems().size(); i++) {
+				CartItem item = c.cart.getItems().get(i);
+				System.out.printf("%-5d %-15s %-8d %d 원 \n", i + 1, item.getMenu().getName(), item.getQuantity(),
+						item.getTotalPrice());
+
+				total += item.getTotalPrice();
+
+			}
+
 			System.out.println("------------------------------");
 			System.out.printf("총 금액: %,d원\n", total);
 			System.out.println("==============================\n");
@@ -192,37 +205,31 @@ public class ViewMenu {
 
 	public void checkout() {
 
-		if (c.getCurrentMember() == null) {
+		if (currentMember == null) {
 			memberLoginDisplay("회원 로그인이 필요합니다.");
 			return;
 		}
 
 		if (c.cart.isEmpty()) {
-			cartDisplay("장바구니가 비어 있습니다.");
+			memberLoginDisplay("장바구니가 비어 있습니다.");
 			return;
 		}
 
-		String answer = null; // answer를 메서드 바깥에서 선언하여 범위 확장
-		int result = 0; // result도 메서드 바깥에서 선언하여 범위 확장
+		String answer = null;
+		int result = 0;
 
-		if (c.getCurrentMember().hasCoupon()) {
+		if (currentMember.hasCoupon()) {
 			if (!isGui) {
 				System.out.print("쿠폰을 사용하시겠습니까? (y/n): ");
 				answer = sc.nextLine();
 			} else {
 
 				result = JOptionPane.showConfirmDialog(null, "쿠폰을 사용하시겠습니까?", "쿠폰 사용", JOptionPane.YES_NO_OPTION);
-				if (result == JOptionPane.CLOSED_OPTION) {
-					// 사용자가 창을 닫았을 때: 결제 중단
-
-					return;
-
-				}
 			}
 
 			if ((!isGui && "y".equalsIgnoreCase(answer)) || (isGui && result == JOptionPane.YES_OPTION)) {
 				try {
-					boolean used = ms.useCoupon(c.getCurrentMember().getPhoneNumber());
+					boolean used = ms.useCoupon(currentMember.getPhoneNumber());
 
 					if (used && c.cart.getTotalPrice() > 5000) {
 						if (!isGui) {
@@ -239,14 +246,14 @@ public class ViewMenu {
 						}
 					}
 
-					c.checkout();
+					c.checkout(); // ✅ 결제 완료 처리 (stamp, order 저장 등)
 
 				} catch (SQLException e) {
 					System.err.println("쿠폰 처리중 오류 발생!");
 					e.printStackTrace();
 				}
 
-				return;
+				return; // ✅ 결제 완료되었으면 메서드 종료
 
 			} else {
 				// 쿠폰 사용 안 함
@@ -257,8 +264,7 @@ public class ViewMenu {
 					JOptionPane.showMessageDialog(null, String.format("결제 금액: %,d원", c.cart.getTotalPrice()));
 					JOptionPane.showMessageDialog(null, "결제를 완료했습니다! 감사합니다!");
 				}
-
-				c.checkout();
+				c.checkout(); // ✅ 결제 처리
 				return;
 			}
 
@@ -271,7 +277,7 @@ public class ViewMenu {
 				JOptionPane.showMessageDialog(null, String.format("결제 금액: %,d원", c.cart.getTotalPrice()));
 				JOptionPane.showMessageDialog(null, "결제를 완료했습니다! 감사합니다!");
 			}
-			c.checkout();
+			c.checkout(); // ✅ 결제 처리
 		}
 	}
 

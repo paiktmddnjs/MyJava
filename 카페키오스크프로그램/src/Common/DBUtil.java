@@ -1,47 +1,40 @@
 package Common;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class DBUtil {
 
-	private static final String DB_PROPERTIES_FILE = "src/resources/Properties";
+	// static을 사용하여 객체를 생성하지 않고도 변수 접근이 가능하고 한번 설정한 값이 변경될 일이 없으므로 final을 써준다.
+	private static final String URL = "jdbc:mysql://localhost:3306/cafe_kiosk?serverTimezone=UTC";
+	private static final String USER = "root1";
+	private static final String PASSWORD = "password";
 
 	static {
 		try {
-			Class.forName("oracle.jdbc.driver.OracleDriver"); // Oracle JDBC 드라이버를 로드
+			Class.forName("com.mysql.cj.jdbc.Driver"); // MySQL JDBC 드라이버 로드
 		} catch (ClassNotFoundException e) {
 			e.printStackTrace();
 		}
 	}
 
-	// 데이터베이스 연결(Connection 객체)을 만들어서 외부에 제공하는 역할을 하는 메소드
+	// 데이터베이스 연결(Connection 객체)을 만들어서 외부에 제공하는 역할을 하는 메소드이다.
 	public static Connection getConnection() {
-		Properties properties = new Properties();
+
 		Connection conn = null;
 
-		try (FileInputStream fis = new FileInputStream(DB_PROPERTIES_FILE)) {
-			properties.load(fis);
-
-			String url = properties.getProperty("db.url");
-			String user = properties.getProperty("db.user");
-			String password = properties.getProperty("db.password");
-
-			conn = DriverManager.getConnection(url, user, password);
-			conn.setAutoCommit(false);
-		} catch (IOException | SQLException e) {
+		try {
+			// 생성해둔 사용자 정보(계정 아이디, 비번)를 이용해 DB의 해당위치(URL)에 연결한다.
+			conn = DriverManager.getConnection(URL, USER, PASSWORD);
+		} catch (SQLException e) {
 			System.err.println("DB 연결 실패: " + e.getMessage());
 			e.printStackTrace();
 		}
-
 		return conn;
 	}
 
-	// 데이터베이스나 파일 등의 자원을 사용 후 반드시 닫기 위해 사용하는 메소드
+	// 데이터베이스나 파일 등의 자원을 사용 후 반드시 닫기 위해 사용하는 메소드이다.
 	public static void close(AutoCloseable ac) {
 		if (ac != null) {
 			try {

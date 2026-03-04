@@ -1,0 +1,13 @@
+Preferences.MainPage.overwriteBuildFilesOnExport=prompt
+eclipse.preferences.version=1
+editor.color.default,defaultValueBeforeOverriddenFromCSS=0,0,0
+editor.color.externalized_string,defaultValueBeforeOverriddenFromCSS=128,0,128
+editor.color.header_assignment,defaultValueBeforeOverriddenFromCSS=0,0,0
+editor.color.header_attributes,defaultValueBeforeOverriddenFromCSS=128,128,0
+editor.color.header_key,defaultValueBeforeOverriddenFromCSS=128,0,0
+editor.color.header_osgi,defaultValueBeforeOverriddenFromCSS=128,0,0
+editor.color.header_value,defaultValueBeforeOverriddenFromCSS=0,0,0
+editor.color.instr,defaultValueBeforeOverriddenFromCSS=128,128,128
+editor.color.string,defaultValueBeforeOverriddenFromCSS=0,128,0
+editor.color.tag,defaultValueBeforeOverriddenFromCSS=0,0,128
+editor.color.xml_comment,defaultValueBeforeOverriddenFromCSS=128,0,0

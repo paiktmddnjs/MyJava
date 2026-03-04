@@ -4,10 +4,6 @@ public class CartItem {
 	private Menu menu;
 	private int quantity;
 
-	public CartItem() {
-
-	}
-
 	public CartItem(Menu menu, int quantity) {
 		this.menu = menu;
 		this.quantity = quantity;
@@ -27,6 +23,6 @@ public class CartItem {
 
 	@Override
 	public String toString() {
-		return String.format("%s x %d = %d원", menu.getName(), quantity, getTotalPrice());
+		return menu.getName() + " x " + quantity + " = " + getTotalPrice() + "원";
 	}
 }

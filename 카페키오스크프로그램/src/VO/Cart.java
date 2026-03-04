@@ -29,15 +29,6 @@ public class Cart {
 		return total;
 	}
 
-	public int TotalQuantity() {
-		int totalQuantity = 0;
-		for (int i = 0; i < getItems().size(); i++) {
-			CartItem item = getItems().get(i);
-			totalQuantity += item.getQuantity(); // 여기서 getQuantity() 호출
-		}
-		return totalQuantity;
-	}
-
 	public void removeItem(int index) {
 		if (index >= 0 && index < items.size()) {
 			items.remove(index);
@@ -48,22 +39,13 @@ public class Cart {
 		return items;
 	}
 
+	
+
 	public boolean isEmpty() {
 		return items.isEmpty();
 	}
 
 	public void clearCart() {
 		items.clear(); // items는 Cart가 가지고 있는 List<CartItem> 객체라고 가정
-	}
-
-	public void showCart() {
-
-		for (int i = 0; i < getItems().size(); i++) {
-			CartItem item = getItems().get(i);
-			System.out.printf("%-5d %-15s %-8d %d 원 \n", i + 1, item.getMenu().getName(), item.getQuantity(),
-					item.getTotalPrice());
-
-		}
-
 	}
 }

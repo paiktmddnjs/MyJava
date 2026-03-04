@@ -1,4 +1,4 @@
-package JPanel;
+package ButtonDialog;
 
 import javax.swing.*;
 import java.awt.*;

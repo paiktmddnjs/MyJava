@@ -1,10 +1,10 @@
 package VO;
 
 public class Menu {
-	private int id; // 메뉴번호
-	private String name; // 메뉴이름
-	private String category; // 메뉴 종류
-	private int price; // 메뉴 가격
+	private int id;
+	private String name;
+	private String category; // "커피", "음료", "디저트"
+	private int price;
 
 	public Menu(int id, String name, String category, int price) {
 		this.id = id;
@@ -34,7 +34,8 @@ public class Menu {
 	}
 
 	public void setCategory(String category) {
-		this.category = category;
+		this.category
+		= category;
 	}
 
 	public int getPrice() {
@@ -47,6 +48,6 @@ public class Menu {
 
 	@Override
 	public String toString() {
-		return name + " : " + price + "원";
+		return id + ". " + name + " (" + category + ") - " + price + "원";
 	}
 }

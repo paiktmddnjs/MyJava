@@ -9,7 +9,6 @@ import javax.swing.JOptionPane;
 import Service.MemberService;
 
 import VO.Cart;
-
 import VO.Member;
 
 import View.ViewMenu;
@@ -20,7 +19,7 @@ import View.ViewMenu;
  *              dao로부터 반환받은 결과에 따라서 성공/실해 여부를 판단해서 응답화면 결정 -> View호출
  * */
 public class Controller {
-	private Member currentMember;
+	private Member currentMember = null;
 
 	private MemberService ms = new MemberService();
 	public Cart cart = new Cart();
@@ -38,12 +37,12 @@ public class Controller {
 		return currentMember;
 	}
 
-	// 주문자의 장바구니의 메뉴 여부를 판단한다
+	// 주문자가 선택한 메뉴들을 출력하여 촣 결제할 금액과 함께 확인할 수 있다.
 	public void showCart() {
 
 		if (cart.isEmpty()) {
-			new ViewMenu().cartDisplay("장바구니가 비어 있습니다.");
-
+			new ViewMenu().memberLoginDisplay("장바구니가 비어 있습니다.");
+			
 		}
 
 	}
@@ -52,15 +51,21 @@ public class Controller {
 	public void checkout() {
 
 		try {
-			ms.stampMember(currentMember.getPhoneNumber(), cart.TotalQuantity());
-			// 업데이트된 새 도장 개수, 쿠폰 여부 다시 불러오기 (DB 반영 위해)
-			currentMember = ms.getOrCreateMember(currentMember.getPhoneNumber());
-			ms.processPayment(currentMember.getPhoneNumber(), cart.getItems());
-			ms.selectOrderId(currentMember.getPhoneNumber());
+			ms.stampMember(currentMember.getPhoneNumber());
 		} catch (SQLException e) {
 			System.err.println("도장 추가에 실패했습니다!");
 			e.printStackTrace();
 		}
+
+		// 업데이트된 새 도장 개수, 쿠폰 여부 다시 불러오기 (DB 반영 위해)
+		try {
+			currentMember = ms.getOrCreateMember(currentMember.getPhoneNumber());
+		} catch (SQLException e) {
+
+			e.printStackTrace();
+		}
+		ms.processPayment(currentMember.getPhoneNumber(), cart.getItems());
+		ms.selectOrderId(currentMember.getPhoneNumber());
 
 		if (ViewMenu.isGui == false) {
 			System.out.println(currentMember);
@@ -69,11 +74,6 @@ public class Controller {
 		}
 
 		cart.clearCart();
-
-	}
-
-	public Member getCurrentMember() {
-		return currentMember;
 	}
 
 }
