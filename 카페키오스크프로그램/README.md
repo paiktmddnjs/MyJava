@@ -60,6 +60,13 @@ MySQL에 접속하여 아래와 같이 데이터베이스를 생성하고 테이
 
 <br>
 
+## ⛃ ER 다이어그램 
+
+<img width="864" height="383" alt="ER 다이어그램" src="https://github.com/user-attachments/assets/6f7f2450-61e7-4f68-949c-4f42dd421806" />
+
+<br>
+
+
 ## �️ 시연 이미지
 
 | 초기 항목 | 항목 선택 | 카페 메뉴 선택 |
